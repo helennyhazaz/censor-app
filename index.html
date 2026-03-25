@@ -238,17 +238,25 @@
 
   async function loadModels() {
     setStatus('<span class="spinner"></span> טוען מודלים לזיהוי פנים...', 'loading');
-    try {
-      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-      modelsLoaded = true;
-      statusEl.style.display = 'none';
-      if (currentImage) processBtn.disabled = false;
-    } catch (e) {
-      setStatus('❌ שגיאה בטעינת המודלים. בדוק חיבור לאינטרנט.', 'error');
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        modelsLoaded = true;
+        statusEl.style.display = 'none';
+        if (currentImage) processBtn.disabled = false;
+        return;
+      } catch (e) {
+        if (attempt < 3) {
+          setStatus(`<span class="spinner"></span> ניסיון ${attempt}/3 — טוען מודלים...`, 'loading');
+          await new Promise(r => setTimeout(r, 2000));
+        } else {
+          setStatus('❌ שגיאה בטעינת המודלים. בדוק חיבור לאינטרנט.', 'error');
+        }
+      }
     }
   }
 
-  loadModels();
+  window.addEventListener('load', loadModels);
 
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
