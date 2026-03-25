@@ -240,7 +240,7 @@
     setStatus('<span class="spinner"></span> טוען מודלים לזיהוי פנים...', 'loading');
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
         modelsLoaded = true;
         statusEl.style.display = 'none';
         if (currentImage) processBtn.disabled = false;
@@ -300,7 +300,7 @@
 
     try {
       const detections = await faceapi
-        .detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.35 }));
+        .detectAllFaces(canvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }));
 
       if (detections.length === 0) {
         setStatus('⚠️ לא זוהו פנים בתמונה. נסה תמונה אחרת.', 'error');
